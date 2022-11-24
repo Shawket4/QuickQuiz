@@ -38,7 +38,7 @@ Future<bool> get Logout async {
   return await prefs.remove("jwt");
 }
 
-const String ServerIP = "http://localhost:6666";
+const String ServerIP = "http://192.168.1.9:6666";
 
 class Router extends StatefulWidget {
   const Router({Key? key}) : super(key: key);
