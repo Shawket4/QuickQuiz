@@ -1,0 +1,145 @@
+import 'package:flutter/material.dart';
+import 'package:quick_quiz/Screens/HomeScreen.dart';
+import '../main.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDFFFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF011627),
+        title: const Text(
+          "Login",
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: ListView(
+          children: <Widget>[
+            Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  'Quick Quiz',
+                  style: TextStyle(
+                      // color: Color(0xFF011627),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 30),
+                )),
+            Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  'Sign in',
+                  style: TextStyle(fontSize: 20),
+                )),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                autocorrect: false,
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color(0xFF011627),
+                      width: 2.0,
+                    ),
+                  ),
+                  border: OutlineInputBorder(),
+                  labelText: 'User Name',
+                  labelStyle: TextStyle(
+                    color: Color(0xFF011627),
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                autocorrect: false,
+                obscureText: true,
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color(0xFF011627),
+                      width: 2.0,
+                    ),
+                  ),
+                  border: OutlineInputBorder(),
+                  labelText: 'Password',
+                  labelStyle: TextStyle(
+                    color: Color(0xFF011627),
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                //forgot password screen
+              },
+              child: const Text(
+                'Forgot Password?',
+                style: TextStyle(color: Color(0xFFF71735),),
+              ),
+            ),
+            Container(
+                height: 50,
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF011627)),
+                  child: const Text(
+                    "Login",
+                  ),
+                  onPressed: () async {
+                    var response = await dio.post("$ServerIP/Login/", data: {
+                      "email": usernameController.text,
+                      "password": passwordController.text
+                    });
+                    var message = response.data["message"];
+                    if (message == "Login Successful") {
+                      var jwt = response.data["jwt"];
+                      print(jwt);
+                      final bool status = await SetJwt(jwt);
+                      if (status) {
+                        dio.options.headers['Content-Type'] = "application/json";
+                        dio.options.headers['Cookie'] = "jwt=$jwt";
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
+                      }
+                    }
+                  },
+                ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text("Don't have an account?"),
+                TextButton(
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(fontSize: 18, color: Color(0xFFF71735)),
+                  ),
+                  onPressed: () {
+                    //signup screen
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
