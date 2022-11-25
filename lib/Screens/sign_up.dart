@@ -136,12 +136,45 @@ class _SignUpState extends State<SignUp> {
                   "Sign up",
                 ),
                 onPressed: () async {
-                  var response = await dio.post("$ServerIP/SignUp/", data: {
+                  var response = await dio.post("$ServerIP/RegisterUser/", data: {
                     "name": nameController.text,
                     "email": usernameController.text,
                     "password": passwordController.text,
                     "permission": permissionController.text,
                   });
+                  var message = response.data["message"];
+                  if (message == "User Created Successfully") {
+                    Navigator.of(context)
+                        .pop(MaterialPageRoute(builder: (BuildContext context) {
+                      return const LoginPage();
+                    }));
+                  } else if (message == "An Error Has Occured") {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          title: const Text("An Error has occured"),
+                          content: const Text("Please fill all fields"),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text(
+                                'Ok',
+                                style: TextStyle(
+                                  color: Color(0xFF5bc0be),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
               ),
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quick_quiz/Screens/HomeScreen.dart';
+import 'package:quick_quiz/Screens/sign_up.dart';
 import '../main.dart';
 
 class LoginPage extends StatefulWidget {
@@ -91,36 +92,91 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text(
                 'Forgot Password?',
-                style: TextStyle(color: Color(0xFFF71735),),
+                style: TextStyle(
+                  color: Color(0xFF5bc0be),
+                ),
               ),
             ),
             Container(
-                height: 50,
-                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF011627)),
-                  child: const Text(
-                    "Login",
-                  ),
-                  onPressed: () async {
-                    var response = await dio.post("$ServerIP/Login/", data: {
-                      "email": usernameController.text,
-                      "password": passwordController.text
-                    });
-                    var message = response.data["message"];
-                    if (message == "Login Successful") {
-                      var jwt = response.data["jwt"];
-                      print(jwt);
-                      final bool status = await SetJwt(jwt);
-                      if (status) {
-                        dio.options.headers['Content-Type'] = "application/json";
-                        dio.options.headers['Cookie'] = "jwt=$jwt";
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomeScreen()));
-                      }
-                    }
-                  },
+              height: 50,
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF011627)),
+                child: const Text(
+                  "Login",
                 ),
+                onPressed: () async {
+                  var response = await dio.post("$ServerIP/Login/", data: {
+                    "email": usernameController.text,
+                    "password": passwordController.text
+                  });
+                  var message = response.data["message"];
+                  if (message == "Login Successful") {
+                    var jwt = response.data["jwt"];
+                    print(jwt);
+                    final bool status = await SetJwt(jwt);
+                    if (status) {
+                      dio.options.headers['Content-Type'] = "application/json";
+                      dio.options.headers['Cookie'] = "jwt=$jwt";
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (_) => HomeScreen()));
+                    }
+                  } else if (message == "Email not found") {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          title: const Text("Email not found"),
+                          content: const Text("Please insert correct email"),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text(
+                                'Ok',
+                                style: TextStyle(
+                                  color: Color(0xFF5bc0be),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else if (message == "Incorrect password") {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          title: const Text("Invalid password"),
+                          content: const Text("Please insert correct password"),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text(
+                                'Ok',
+                                style: TextStyle(
+                                  color: Color(0xFF5bc0be),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -129,10 +185,13 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   child: const Text(
                     'Sign Up',
-                    style: TextStyle(fontSize: 18, color: Color(0xFFF71735)),
+                    style: TextStyle(fontSize: 18, color: Color(0xFF5bc0be)),
                   ),
                   onPressed: () {
-                    //signup screen
+                    Navigator.of(context).push(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                      return const SignUp();
+                    }));
                   },
                 )
               ],
