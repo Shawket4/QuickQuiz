@@ -29,7 +29,9 @@ func RegisterUser(c *fiber.Ctx) error {
 	User.Permission, err = strconv.Atoi(data["permission"])
 	if err != nil {
 		log.Println(err)
-		return err
+		return c.JSON(fiber.Map{
+			"Message": "An Error Has Occured",
+		})
 	}
 	Database.DB.Create(&User)
 	return c.JSON(fiber.Map{
