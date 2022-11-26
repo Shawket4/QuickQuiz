@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:quick_quiz/Screens/login_page.dart';
 import '../main.dart';
@@ -8,6 +9,9 @@ class SignUp extends StatefulWidget {
   @override
   State<SignUp> createState() => _SignUpState();
 }
+
+List<String> _permissionList = const ["Student", "Teacher"];
+String selectedPermission = _permissionList[0];
 
 class _SignUpState extends State<SignUp> {
   TextEditingController nameController = TextEditingController();
@@ -21,7 +25,7 @@ class _SignUpState extends State<SignUp> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0b132b),
         title: const Text(
-          "Sign up Page",
+          "New Account",
         ),
       ),
       body: Padding(
@@ -40,10 +44,10 @@ class _SignUpState extends State<SignUp> {
                 )),
             Container(
                 alignment: Alignment.center,
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(6.0),
                 child: const Text(
-                  'Sign up',
-                  style: TextStyle(fontSize: 20),
+                  'Create a New Account',
+                  style: TextStyle(fontSize: 18),
                 )),
             Container(
               padding: const EdgeInsets.all(10),
@@ -78,7 +82,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   border: OutlineInputBorder(),
-                  labelText: 'User Name',
+                  labelText: 'Username',
                   labelStyle: TextStyle(
                     color: Color(0xFF0b132b),
                   ),
@@ -106,26 +110,85 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                autocorrect: false,
-                controller: permissionController,
-                decoration: const InputDecoration(
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: DropdownSearch<String>(
+                dropdownSearchTextAlign: TextAlign.left,
+                searchFieldProps: const TextFieldProps(
+                  autocorrect: false,
+                  cursorColor: Color(0xFF0b132b),
+                ),
+                popupItemBuilder: (context, item, isSelected) =>
+                    SizedBox(
+                      height: 50,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    item,
+                                    style: TextStyle(
+                                      color: isSelected ? const Color(0xFF5bc0be) :const Color(0xFF0b132b),
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                dropdownSearchDecoration: const InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: Color(0xFF0b132b),
                       width: 2.0,
                     ),
                   ),
-                  border: OutlineInputBorder(),
-                  labelText: 'Permission',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(),
+                  ),
+                  labelText: "Permission*",
                   labelStyle: TextStyle(
                     color: Color(0xFF0b132b),
                   ),
                 ),
+                mode: Mode.MENU,
+                showSelectedItems: true,
+                showSearchBox: false,
+                enabled: true,
+                items: _permissionList,
+                selectedItem: selectedPermission,
+                onChanged: (item) => setState(() {
+                  selectedPermission = item!;
+                }),
               ),
             ),
+            // Container(
+            //   padding: const EdgeInsets.all(10),
+            //   child: TextField(
+            //     autocorrect: false,
+            //     controller: permissionController,
+            //     decoration: const InputDecoration(
+            //       focusedBorder: OutlineInputBorder(
+            //         borderSide: BorderSide(
+            //           color: Color(0xFF0b132b),
+            //           width: 2.0,
+            //         ),
+            //       ),
+            //       border: OutlineInputBorder(),
+            //       labelText: 'Permission',
+            //       labelStyle: TextStyle(
+            //         color: Color(0xFF0b132b),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             Container(
               height: 50,
               padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -136,19 +199,25 @@ class _SignUpState extends State<SignUp> {
                   "Sign up",
                 ),
                 onPressed: () async {
+                  if (selectedPermission == _permissionList[0]) {
+                   permissionController.text = "0";
+                  } else if (selectedPermission == _permissionList[1]) {
+                    permissionController.text = "1";
+                  }
                   var response = await dio.post("$ServerIP/RegisterUser/", data: {
                     "name": nameController.text,
                     "email": usernameController.text,
                     "password": passwordController.text,
                     "permission": permissionController.text,
                   });
-                  var message = response.data["message"];
+                  var message = response.data["Message"];
+                  print(message);
                   if (message == "User Created Successfully") {
                     Navigator.of(context)
                         .pop(MaterialPageRoute(builder: (BuildContext context) {
                       return const LoginPage();
                     }));
-                  } else if (message == "An Error Has Occured") {
+                  } else if (message == "An Error Has Occurred") {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {

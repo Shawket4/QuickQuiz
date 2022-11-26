@@ -30,7 +30,7 @@ func RegisterUser(c *fiber.Ctx) error {
 	if err != nil {
 		log.Println(err)
 		return c.JSON(fiber.Map{
-			"Message": "An Error Has Occured",
+			"Message": "An Error Has Occurred",
 		})
 	}
 	Database.DB.Create(&User)
@@ -115,7 +115,7 @@ func ReturnUserName(c *fiber.Ctx) error {
 	user, err := User(c)
 	if err != nil {
 		log.Println(err)
-		return err
+		return c.JSON(fiber.Map{})
 	}
 	return c.JSON(user)
 }

@@ -4,6 +4,11 @@ import 'package:quick_quiz/Screens/login_page.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'Screens/PresentationsScreen.dart';
+import 'Screens/QuestionBanksScreen.dart';
+import 'Screens/QuizzesScreen.dart';
+import 'Screens/VideosScreen.dart';
+
 void main() {
   runApp(const Router());
 }
@@ -17,6 +22,13 @@ Future<String> get _getJwt async {
   // await prefs.remove("jwt");
   jwt = (prefs.getString('jwt') ?? "");
   dio.options.headers["Cookie"] = "jwt=$jwt";
+  try {
+    var checkValidity = await dio.get("$ServerIP/ReturnUser");
+  } catch (e) {
+    Logout;
+    jwt = "";
+    return jwt;
+  }
   return jwt;
 }
 
@@ -38,7 +50,7 @@ Future<bool> get Logout async {
   return await prefs.remove("jwt");
 }
 
-const String ServerIP = "http://192.168.1.9:6666";
+const String ServerIP = "http://localhost:6666";
 
 class Router extends StatefulWidget {
   const Router({Key? key}) : super(key: key);
@@ -54,16 +66,19 @@ class _RouterState extends State<Router> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primaryColor: const Color(0xFF0b132b),
+      ),
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
         future: _getJwt,
           builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Scaffold(
-            body: CircularProgressIndicator(),
+            body: Center(child: CircularProgressIndicator(),),
           );
         } else {
-          if (jwt.isNotEmpty) {
+          if (jwt != "") {
             return HomeScreen();
           } else {
             return const LoginPage();
@@ -91,3 +106,118 @@ class _RouterState extends State<Router> {
 //     );
 //   }
 // }
+Widget SideMenu(BuildContext context) {
+  return Drawer(
+    backgroundColor: const Color(0xFF011627),
+    child: ListView(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, top: 30),
+          child: Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundImage: AssetImage(
+                      "assets/images/user_avatar.png"
+                  ),
+                  radius: 25,
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4.0),
+                  child: Text(
+                    userName,
+                    style: const TextStyle(
+                        fontSize: 22,
+                        overflow: TextOverflow.ellipsis,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFFDFFFC)
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10, top: 5,),
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const PresentationsScreen()));
+            },
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Presentations",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFDFFFC)
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizzesScreen()));
+            },
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Quizzes",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFDFFFC)
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10, top: 5),
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const QuestionBanksScreen()));
+            },
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Question Banks",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFDFFFC)
+                ),
+              ),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 10, top: 5),
+          child: TextButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const VideosScreen()));
+            },
+            child: const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Videos",
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFDFFFC)
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
